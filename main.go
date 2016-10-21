@@ -6,10 +6,17 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 func help() {
 	fmt.Println("kk-uuid <name> <0.0.0.0:8080>")
+}
+
+const twepoch = int64(1424016000000)
+
+func milliseconds() int64 {
+	return time.Now().UnixNano() / 1e6
 }
 
 func main() {
@@ -26,11 +33,14 @@ func main() {
 		return
 	}
 
+	var id = milliseconds()
+
 	var replay func(message *kk.Message) bool = nil
 
 	replay, _ = kk.TCPClientConnect(name, address, map[string]interface{}{"exclusive": true}, func(message *kk.Message) {
 		if message.Method == "REQUEST" {
-			var v = kk.Message{message.Method, name, message.From, "text", []byte(strconv.FormatInt(kk.UUID(), 10))}
+			id = id + 1
+			var v = kk.Message{message.Method, name, message.From, "text", []byte(strconv.FormatInt(id, 10))}
 			replay(&v)
 		} else {
 			var v = kk.Message{"NOIMPLEMENT", message.To, message.From, "", []byte("")}
