@@ -13,10 +13,10 @@ func help() {
 	fmt.Println("kk-uuid <name> <0.0.0.0:8080>")
 }
 
-const twepoch = int64(1424016000000)
+const twepoch = int64(1424016000000000)
 
 func milliseconds() int64 {
-	return time.Now().UnixNano() / 1e6
+	return time.Now().UnixNano() / 1e3
 }
 
 func main() {
@@ -37,7 +37,7 @@ func main() {
 
 	var replay func(message *kk.Message) bool = nil
 
-	replay, _ = kk.TCPClientConnect(name, address, map[string]interface{}{"exclusive": true}, func(message *kk.Message) {
+	replay, _ = kk.TCPClientConnect(name, address, map[string]interface{}{"exclusive": true, "title": "uuid"}, func(message *kk.Message) {
 		if message.Method == "REQUEST" {
 			id = id + 1
 			var v = kk.Message{message.Method, name, message.From, "text", []byte(strconv.FormatInt(id, 10))}
